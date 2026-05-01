@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Command Game — Apprenez le terminal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- Mission panel -->
+    <div id="mission-panel">
+      <div id="level-header">
+        <span id="level-badge">Niveau 1 / 15</span>
+        <span id="level-title">Chargement…</span>
+        <div id="level-progress"><div id="level-progress-fill"></div></div>
+      </div>
+      <div id="mission-content">
+        <div id="mission-objective"></div>
+        <div id="hint-container">
+          <button id="hint-btn">💡 Voir l'indice</button>
+          <div id="hint-text" class="hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal -->
+    <div id="terminal-container">
+      <div id="terminal-titlebar">
+        <div class="tb-dots">
+          <span class="tb-close"></span>
+          <span class="tb-min"></span>
+          <span class="tb-max"></span>
+        </div>
+        <span id="terminal-title">player@linux-game: ~</span>
+      </div>
+      <div id="terminal-output" role="log" aria-live="polite"></div>
+      <div id="terminal-input-line">
+        <span id="prompt"></span>
+        <input id="terminal-input" type="text" autocomplete="off" spellcheck="false" autofocus aria-label="Entrée terminal">
+      </div>
+    </div>
+
+    <!-- Level complete modal -->
+    <div id="level-complete" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-icon">✓</div>
+        <h2>Niveau terminé !</h2>
+        <p id="level-complete-msg"></p>
+        <button id="next-level-btn">Niveau suivant →</button>
+      </div>
+    </div>
+
+    <!-- Game complete modal -->
+    <div id="game-complete" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-icon">🎉</div>
+        <h2>Félicitations !</h2>
+        <p>Vous avez terminé les 15 niveaux et maîtrisé les bases du terminal Linux. À vous de les utiliser pour de vrai !</p>
+        <button id="restart-btn">Rejouer</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/filesystem.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
