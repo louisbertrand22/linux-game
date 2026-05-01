@@ -1,8 +1,8 @@
 const LEVELS = [
   {
     title: 'Où suis-je ?',
-    objective: `Vous venez de vous connecter à un serveur Linux. Avant tout, trouvez <em>où vous êtes</em> dans le système de fichiers.\n\nUtilisez <code>pwd</code> pour afficher votre répertoire courant.`,
-    hint: 'Tapez : pwd',
+    objective: `Vous venez de vous connecter à un serveur Linux. Avant tout, trouvez <em>où vous êtes</em> dans le système de fichiers.\n\nAfficher le répertoire courant.`,
+    hint: 'Il existe une commande dédiée à ça.',
     setup(fs) {},
     validate({ command }) {
       return command.trim() === 'pwd';
@@ -10,8 +10,8 @@ const LEVELS = [
   },
   {
     title: 'Regarder autour',
-    objective: `Vous savez où vous êtes. Voyons maintenant ce qu'il y a <em>dans</em> ce répertoire.\n\nUtilisez <code>ls</code> pour lister les fichiers et dossiers.`,
-    hint: 'Tapez : ls',
+    objective: `Vous savez où vous êtes. Voyons maintenant ce qu'il y a <em>dans</em> ce répertoire.\n\nListez les fichiers et dossiers présents ici.`,
+    hint: 'Une seule lettre suffit pour cette commande.',
     setup(fs) {
       fs.writeFile('/home/player/readme.txt', 'Bienvenue sur le serveur !\nVoici votre répertoire personnel.');
       fs.mkdir('/home/player/documents');
@@ -23,12 +23,11 @@ const LEVELS = [
   },
   {
     title: 'Fichiers cachés',
-    objective: `Sous Linux, les fichiers commençant par <code>.</code> sont <em>cachés</em>.\n\nUn fichier de configuration secret se cache ici. Utilisez <code>ls -a</code> pour afficher tous les fichiers, y compris les cachés.`,
-    hint: 'L\'option -a signifie "all" (tous). Essayez : ls -a',
+    objective: `Sous Linux, les fichiers commençant par <code>.</code> sont <em>cachés</em> et n'apparaissent pas dans un listing normal.\n\nUn fichier secret se cache ici — trouvez comment l'afficher.`,
+    hint: 'ls possède une option pour afficher <em>tous</em> les fichiers.',
     setup(fs) {
       fs.writeFile('/home/player/.secret', 'motdepasse=linux4ever');
       fs.writeFile('/home/player/.bashrc', '# config du shell\nexport PS1="\\u@\\h:\\w$ "');
-      fs.writeFile('/home/player/notes.txt', 'Fichier normal');
     },
     validate({ command }) {
       const parts = command.trim().split(/\s+/);
@@ -37,8 +36,8 @@ const LEVELS = [
   },
   {
     title: 'Détails des fichiers',
-    objective: `<code>ls -l</code> affiche des informations détaillées sur chaque fichier :\npermissions, propriétaire, taille et nom.\n\nUtilisez <code>ls -l</code> pour voir ces détails.`,
-    hint: 'Tapez : ls -l',
+    objective: `Un simple <code>ls</code> ne montre que les noms.\n\nAffichez les détails complets : permissions, propriétaire, taille de chaque fichier.`,
+    hint: 'ls a une option pour le format long.',
     setup(fs) {
       fs.writeFile('/home/player/rapport.txt', 'Résultats T1 : +15%\nRésultats T2 : +22%');
       fs.mkdir('/home/player/archives');
@@ -50,8 +49,8 @@ const LEVELS = [
   },
   {
     title: 'Naviguer !',
-    objective: `Utilisez <code>cd</code> pour changer de répertoire.\n\nEntrez dans le dossier <code>documents</code>.\n\nAstuce : <code>cd ..</code> remonte d'un niveau.`,
-    hint: 'Tapez : cd documents',
+    objective: `Vous savez lister des fichiers, mais vous êtes toujours au même endroit.\n\nEntrez dans le dossier <code>documents</code>.\n\nAstuce : <code>..</code> désigne le répertoire parent.`,
+    hint: 'Change Directory — cherchez l\'abréviation.',
     setup(fs) {
       fs.mkdir('/home/player/documents');
       fs.writeFile('/home/player/documents/notes.txt', 'Voici mes notes.');
@@ -62,9 +61,8 @@ const LEVELS = [
   },
   {
     title: 'Lire un fichier',
-    objective: `Vous êtes dans le dossier documents.\nIl y a un fichier <code>notes.txt</code> ici.\n\nUtilisez <code>cat</code> pour lire et afficher son contenu.`,
-    hint: 'Tapez : cat notes.txt',
-    startCwd: '/home/player/documents',
+    objective: `Il y a un fichier <code>notes.txt</code> dans votre dossier <code>documents</code>.\n\nNaviguez-y si besoin, puis affichez son contenu dans le terminal.`,
+    hint: 'Cette commande s\'appelle comme un animal qui miaule.',
     setup(fs) {
       fs.mkdir('/home/player/documents');
       fs.writeFile('/home/player/documents/notes.txt', 'Notes top secrètes :\n1. Apprendre les commandes Linux\n2. Pratiquer chaque jour\n3. Devenir un maître Linux !');
@@ -75,8 +73,8 @@ const LEVELS = [
   },
   {
     title: 'Créer un répertoire',
-    objective: `Utilisez <code>mkdir</code> pour créer un nouveau répertoire.\n\nCréez un dossier appelé <code>projets</code> dans votre répertoire personnel.`,
-    hint: 'Tapez : mkdir projets',
+    objective: `Créez un dossier appelé <code>projets</code> dans votre répertoire personnel.\n\nSi vous n'y êtes plus, retournez-y d'abord avec <code>cd ~</code>.`,
+    hint: 'make directory → pensez à l\'abréviation.',
     setup(fs) {},
     validate({ fs: vfs }) {
       return vfs.isDir('/home/player/projets');
@@ -84,8 +82,8 @@ const LEVELS = [
   },
   {
     title: 'Créer un fichier',
-    objective: `Utilisez <code>touch</code> pour créer un fichier vide.\n\nCréez un fichier appelé <code>todo.txt</code> dans votre répertoire personnel.`,
-    hint: 'Tapez : touch todo.txt',
+    objective: `Créez un fichier vide appelé <code>todo.txt</code> dans votre répertoire personnel.\n\nCette commande ne modifie pas le contenu — elle crée juste le fichier.`,
+    hint: 'Pensez à effleurer... en anglais.',
     setup(fs) {},
     validate({ fs: vfs }) {
       return vfs.isFile('/home/player/todo.txt');
@@ -93,8 +91,8 @@ const LEVELS = [
   },
   {
     title: 'Copier un fichier',
-    objective: `Utilisez <code>cp</code> pour copier des fichiers.\n\nFaites une sauvegarde : copiez <code>donnees.txt</code> vers <code>donnees_backup.txt</code>.`,
-    hint: 'Tapez : cp donnees.txt donnees_backup.txt',
+    objective: `Faites une sauvegarde de <code>donnees.txt</code> en le copiant sous le nom <code>donnees_backup.txt</code>.\n\nLes deux fichiers doivent exister à la fin.`,
+    hint: 'cp prend deux arguments : source puis destination.',
     setup(fs) {
       fs.writeFile('/home/player/donnees.txt', 'Données importantes\nNe pas perdre !');
     },
@@ -104,8 +102,8 @@ const LEVELS = [
   },
   {
     title: 'Déplacer et renommer',
-    objective: `<code>mv</code> déplace des fichiers — mais si la source et la destination sont dans le même dossier, il <em>renomme</em> le fichier.\n\nRenommez <code>brouillon.txt</code> en <code>final.txt</code>.`,
-    hint: 'Tapez : mv brouillon.txt final.txt',
+    objective: `<code>mv</code> déplace des fichiers, mais utilisé dans le même dossier il <em>renomme</em>.\n\nRenommez <code>brouillon.txt</code> en <code>final.txt</code>.`,
+    hint: 'mv source destination — source et destination dans le même dossier = renommage.',
     setup(fs) {
       fs.writeFile('/home/player/brouillon.txt', 'Voici mon brouillon.');
     },
@@ -115,8 +113,8 @@ const LEVELS = [
   },
   {
     title: 'Supprimer un fichier',
-    objective: `Utilisez <code>rm</code> pour supprimer des fichiers.\n\nSupprimez le fichier <code>corbeille.txt</code>.\n\n⚠️ Attention : Linux n'a pas de corbeille !`,
-    hint: 'Tapez : rm corbeille.txt',
+    objective: `Supprimez <code>corbeille.txt</code>.\n\n⚠️ Sous Linux, il n'y a pas de corbeille. La suppression est définitive.`,
+    hint: 'remove → rm. Soyez prudent.',
     setup(fs) {
       fs.writeFile('/home/player/corbeille.txt', 'Supprimez-moi.');
       fs.writeFile('/home/player/garder.txt', 'Ne PAS supprimer celui-ci !');
@@ -127,8 +125,8 @@ const LEVELS = [
   },
   {
     title: 'Chercher dans les fichiers',
-    objective: `Utilisez <code>grep</code> pour rechercher du texte <em>à l'intérieur</em> des fichiers.\n\nTrouvez la ligne contenant le mot <code>erreur</code> dans <code>serveur.log</code>.`,
-    hint: 'Tapez : grep erreur serveur.log',
+    objective: `Le fichier <code>serveur.log</code> contient plusieurs lignes.\nTrouvez uniquement la ligne contenant le mot <code>erreur</code>.\n\nSans grep, vous seriez obligé de tout lire.`,
+    hint: 'grep motif fichier — le motif est une expression à rechercher.',
     setup(fs) {
       fs.writeFile('/home/player/serveur.log', '[INFO]  Serveur démarré sur le port 8080\n[INFO]  Connecté à la base de données\n[ERREUR] erreur : disque utilisé à 95%\n[INFO]  Requête traitée en 42ms\n[AVERT]  Utilisation mémoire élevée');
     },
@@ -138,8 +136,8 @@ const LEVELS = [
   },
   {
     title: 'Trouver des fichiers',
-    objective: `Utilisez <code>find</code> pour localiser des fichiers par nom n'importe où dans le système.\n\nTrouvez tous les fichiers <code>.log</code> à partir de votre répertoire personnel.`,
-    hint: "Tapez : find . -name '*.log'",
+    objective: `Des fichiers <code>.log</code> sont éparpillés dans plusieurs sous-dossiers.\nTrouvez-les tous en une seule commande, à partir de votre répertoire courant.`,
+    hint: 'find parcourt l\'arborescence. Essayez avec -name et un joker *.',
     setup(fs) {
       fs.mkdir('/home/player/logs');
       fs.mkdir('/home/player/logs/anciens');
@@ -153,8 +151,8 @@ const LEVELS = [
   },
   {
     title: 'Permissions des fichiers',
-    objective: `Chaque fichier a des <em>permissions</em> : qui peut le lire, l'écrire ou l'exécuter.\n\nLe fichier <code>deployer.sh</code> doit être exécutable.\nUtilisez <code>chmod +x deployer.sh</code> pour ajouter la permission d'exécution.`,
-    hint: 'Tapez : chmod +x deployer.sh\n(ou : chmod 755 deployer.sh)',
+    objective: `Chaque fichier a des <em>permissions</em> : qui peut le lire (<code>r</code>), l'écrire (<code>w</code>), ou l'exécuter (<code>x</code>).\n\nLe fichier <code>deployer.sh</code> n'est pas exécutable. Ajoutez-lui ce droit.`,
+    hint: 'chmod modifie les permissions. Les opérateurs + et - ajoutent ou retirent des droits.',
     setup(fs) {
       fs.writeFile('/home/player/deployer.sh', '#!/bin/bash\necho "Déploiement en cours..."\necho "Terminé !"');
       fs.get('/home/player/deployer.sh').permissions = 'rw-r--r--';
@@ -166,8 +164,8 @@ const LEVELS = [
   },
   {
     title: 'La puissance des pipes',
-    objective: `L'opérateur <code>|</code> (pipe) connecte des commandes :\nla sortie de la première devient l'entrée de la seconde.\n\nListez votre répertoire et envoyez vers <code>grep</code> pour n'afficher que les fichiers <code>.txt</code> :\n<code>ls | grep .txt</code>`,
-    hint: 'Tapez : ls | grep .txt',
+    objective: `L'opérateur <code>|</code> connecte deux commandes : la sortie de la première devient l'entrée de la seconde.\n\nListez votre répertoire et filtrez le résultat pour n'afficher que les fichiers <code>.txt</code>.`,
+    hint: 'Combinez ls et grep avec le symbole |.',
     setup(fs) {
       fs.writeFile('/home/player/notes.txt', 'mes notes');
       fs.writeFile('/home/player/todo.txt', 'ma liste de tâches');

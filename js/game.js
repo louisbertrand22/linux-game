@@ -1,24 +1,24 @@
 class Game {
   constructor() {
-    this.fs       = new VirtualFS();
-    this.executor = new CommandExecutor(this.fs);
-    this.level    = 0;
-    this.cwd      = '/home/player';
-    this.history  = [];
-    this.histIdx  = -1;
+    this.fs        = new VirtualFS();
+    this.executor  = new CommandExecutor(this.fs);
+    this.level     = 0;
+    this.cwd       = '/home/player';
+    this.freePlay  = false;
+    this.history   = [];
+    this.histIdx   = -1;
 
-    this.$output      = document.getElementById('terminal-output');
-    this.$input       = document.getElementById('terminal-input');
-    this.$prompt      = document.getElementById('prompt');
-    this.$badge       = document.getElementById('level-badge');
-    this.$title       = document.getElementById('level-title');
-    this.$bar         = document.getElementById('level-progress-fill');
-    this.$objective   = document.getElementById('mission-objective');
-    this.$hintBtn     = document.getElementById('hint-btn');
-    this.$hintText    = document.getElementById('hint-text');
+    this.$output        = document.getElementById('terminal-output');
+    this.$input         = document.getElementById('terminal-input');
+    this.$prompt        = document.getElementById('prompt');
+    this.$badge         = document.getElementById('level-badge');
+    this.$title         = document.getElementById('level-title');
+    this.$bar           = document.getElementById('level-progress-fill');
+    this.$objective     = document.getElementById('mission-objective');
+    this.$hintBtn       = document.getElementById('hint-btn');
+    this.$hintText      = document.getElementById('hint-text');
     this.$completeModal = document.getElementById('level-complete');
     this.$completeMsg   = document.getElementById('level-complete-msg');
-    this.$gameModal     = document.getElementById('game-complete');
     this.$titlebar      = document.getElementById('terminal-title');
 
     this._bindEvents();
@@ -41,6 +41,14 @@ class Game {
     });
 
     this.$hintBtn.addEventListener('click', () => {
+      if (this.freePlay) {
+        this.freePlay = false;
+        this.history = []; this.histIdx = -1;
+        this.$hintBtn.style.borderColor = '';
+        this.$hintBtn.style.color = '';
+        this._startLevel(0);
+        return;
+      }
       const hidden = this.$hintText.classList.toggle('hidden');
       this.$hintBtn.textContent = hidden ? '💡 Voir l\'indice' : '🙈 Cacher l\'indice';
     });
@@ -50,39 +58,64 @@ class Game {
       this._startLevel(this.level + 1);
     });
 
-    document.getElementById('restart-btn').addEventListener('click', () => {
-      this.$gameModal.classList.add('hidden');
-      this.history = []; this.histIdx = -1;
-      this._startLevel(0);
-    });
-
     document.getElementById('terminal-container').addEventListener('click', () => this.$input.focus());
   }
 
   _startLevel(idx) {
-    if (idx >= LEVELS.length) { this._showGameOver(); return; }
+    if (idx >= LEVELS.length) { this._startFreePlay(); return; }
     this.level = idx;
-    const lvl = LEVELS[idx];
+    const lvl  = LEVELS[idx];
 
-    this.fs.reset();
+    // Réinitialise le FS uniquement au début du jeu
+    if (idx === 0) {
+      this.fs.reset();
+      this.cwd = '/home/player';
+    }
+    // Ajoute les fichiers nécessaires au niveau sans effacer l'existant
     if (lvl.setup) lvl.setup(this.fs);
-    this.cwd = lvl.startCwd || '/home/player';
 
-    this.$badge.textContent     = `Niveau ${idx + 1} / ${LEVELS.length}`;
-    this.$title.textContent     = lvl.title;
-    this.$bar.style.width       = `${(idx / LEVELS.length) * 100}%`;
-    this.$objective.innerHTML   = lvl.objective.replace(/\n/g, '<br>');
-    this.$hintText.textContent  = lvl.hint;
+    this.$badge.textContent    = `Niveau ${idx + 1} / ${LEVELS.length}`;
+    this.$badge.style.background = '';
+    this.$title.textContent    = lvl.title;
+    this.$bar.style.width      = `${(idx / LEVELS.length) * 100}%`;
+    this.$objective.innerHTML  = lvl.objective.replace(/\n/g, '<br>');
+    this.$hintText.textContent = lvl.hint;
     this.$hintText.classList.add('hidden');
-    this.$hintBtn.textContent   = '💡 Voir l\'indice';
+    this.$hintBtn.textContent  = '💡 Voir l\'indice';
 
     this.$output.innerHTML = '';
     this._printInfo(`─── Niveau ${idx + 1} : ${lvl.title} ───`);
     if (idx === 0) {
       this._print('Bienvenue dans Linux Command Game !');
-      this._print('Tapez vos commandes ci-dessous. Utilisez "help" pour voir toutes les commandes.');
+      this._print('Tapez vos commandes ci-dessous. Utilisez "help" pour la liste complète.');
       this._print('');
     }
+    this._updatePrompt();
+    this.$input.focus();
+  }
+
+  _startFreePlay() {
+    this.freePlay = true;
+
+    this.$badge.textContent      = '✓ Terminé';
+    this.$badge.style.background = '#e3b341';
+    this.$title.textContent      = 'Mode Libre';
+    this.$bar.style.width        = '100%';
+    this.$objective.innerHTML    =
+      'Vous avez complété tous les niveaux.<br><br>' +
+      'Le terminal est maintenant entièrement libre.<br>' +
+      'Explorez, créez, supprimez — le système de fichiers construit pendant le jeu est intact.';
+
+    this.$hintText.classList.add('hidden');
+    this.$hintBtn.textContent    = '↺ Rejouer';
+    this.$hintBtn.style.borderColor = 'var(--green)';
+    this.$hintBtn.style.color       = 'var(--green)';
+
+    this.$output.innerHTML = '';
+    this._printInfo('─── Mode Libre ───');
+    this._print('Félicitations ! Vous maîtrisez maintenant les bases du terminal Linux.');
+    this._print('Continuez à explorer. Tapez "help" pour voir toutes les commandes.');
+    this._print('');
     this._updatePrompt();
     this.$input.focus();
   }
@@ -122,13 +155,15 @@ class Game {
     this._updatePrompt();
     this._scroll();
 
+    if (this.freePlay) return;
+
     const lvl = LEVELS[this.level];
     if (lvl.validate({ command: input, output: result.output || '', cwd: this.cwd, prevCwd, fs: this.fs })) {
       setTimeout(() => this._showComplete(), 2000);
     }
   }
 
-  _printLs(output, items, dirPath) {
+  _printLs(output, _items, dirPath) {
     if (!output) return;
     const div = document.createElement('div');
     div.className = 'output-line';
@@ -185,7 +220,7 @@ class Game {
   }
 
   _updatePrompt() {
-    this.$prompt.textContent  = this._promptStr();
+    this.$prompt.textContent   = this._promptStr();
     this.$titlebar.textContent = `player@linux-game: ${this._promptStr().split(':')[1].replace('$ ', '')}`;
   }
 
@@ -204,14 +239,14 @@ class Game {
   }
 
   _tabComplete() {
-    const val  = this.$input.value;
+    const val   = this.$input.value;
     const parts = val.split(' ');
     const last  = parts[parts.length - 1];
     if (!last && parts.length <= 1) return;
 
-    const slashIdx = last.lastIndexOf('/');
-    const dirPart  = slashIdx >= 0 ? last.substring(0, slashIdx + 1) : '';
-    const prefix   = slashIdx >= 0 ? last.substring(slashIdx + 1) : last;
+    const slashIdx  = last.lastIndexOf('/');
+    const dirPart   = slashIdx >= 0 ? last.substring(0, slashIdx + 1) : '';
+    const prefix    = slashIdx >= 0 ? last.substring(slashIdx + 1) : last;
     const searchDir = dirPart ? this.fs.resolve(dirPart, this.cwd) : this.cwd;
 
     const entries = this.fs.list(searchDir) || [];
@@ -232,11 +267,6 @@ class Game {
     this.$completeMsg.textContent = `Bravo ! Vous avez maîtrisé « ${LEVELS[this.level].title} ».`;
     this.$bar.style.width = `${((this.level + 1) / LEVELS.length) * 100}%`;
     this.$completeModal.classList.remove('hidden');
-  }
-
-  _showGameOver() {
-    this.$bar.style.width = '100%';
-    this.$gameModal.classList.remove('hidden');
   }
 }
 
